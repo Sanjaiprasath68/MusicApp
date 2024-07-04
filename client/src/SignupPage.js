@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 const SignupPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
@@ -25,12 +26,17 @@ const SignupPage = () => {
       // Reset form fields
       setEmail('');
       setPassword('');
+      setError('');
 
       // Navigate to login page after successful signup
       navigate('/login');
     } catch (error) {
       console.error('Signup error:', error);
-      // Handle signup error
+      if (error.response && error.response.status === 409) {
+        setError('Signup failed. Please try again later.');
+      } else {
+        setError('Email already exists. Please use a different email.');
+      }
     }
   };
 
@@ -41,6 +47,7 @@ const SignupPage = () => {
           <Card>
             <Card.Body>
               <h2 className="text-center mb-4">Sign Up</h2>
+              {error && <p className="text-danger">{error}</p>}
               <Form onSubmit={handleSignup}>
                 <Form.Group controlId="formBasicEmail">
                   <Form.Label>Email address</Form.Label>

@@ -113,27 +113,21 @@ app.post('/playlists/:id/addSong', async (req, res) => {
 });
 
 // Route for removing a song from a playlist
-app.delete('/playlists/:playlistId/songs/:songId', async (req, res) => {
-  const { playlistId, songId } = req.params;
+// Route for deleting a playlist
+app.delete('/playlists/:id', async (req, res) => {
+  const { id } = req.params;
   try {
-    const playlist = await Playlist.findById(playlistId);
+    const playlist = await Playlist.findByIdAndDelete(id);
     if (!playlist) {
       return res.status(404).json({ error: 'Playlist not found' });
     }
-
-    // Remove the song from the playlist
-    playlist.songs.pull(songId);
-    await playlist.save();
-
-    // Optionally, you can also delete the song from the Songs collection
-    await Song.findByIdAndDelete(songId);
-
-    res.json({ message: 'Song removed from playlist successfully' });
+    res.json({ message: 'Playlist deleted successfully' });
   } catch (error) {
-    console.error('Error removing song from playlist:', error);
-    res.status(500).json({ error: 'Error removing song from playlist' });
+    console.error('Error deleting playlist:', error);
+    res.status(500).json({ error: 'Error deleting playlist' });
   }
 });
+
 
 // Route for handling signup
 app.post('/signup', async (req, res) => {

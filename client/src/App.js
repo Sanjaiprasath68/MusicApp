@@ -98,8 +98,10 @@ const App = () => {
     }
   };
 
-  const handleSelectPlaylist = (event) => {
-    setSelectedPlaylist(event.target.value);
+  const handleSelectPlaylist = async (event) => {
+    const playlistId = event.target.value;
+    setSelectedPlaylist(playlistId);
+    await fetchPlaylistSongs(playlistId);
   };
 
   const handleShowMyPlaylists = () => {
@@ -110,8 +112,26 @@ const App = () => {
     setShowMyPlaylists(false);
   };
 
-  const handlePlaylistClick = (playlistId) => {
-    fetchPlaylistSongs(playlistId); // Fetch songs for the selected playlist
+  const deletePlaylist = async (playlistId) => {
+    try {
+      await axios.delete(`https://music-app-api-seven.vercel.app/playlists/${playlistId}`);
+      await fetchPlaylists(); // Refresh playlists after deletion
+      window.alert('Playlist deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting playlist:', error);
+      window.alert('Failed to delete playlist.');
+    }
+  };
+
+  const removeSongFromPlaylist = async (songId) => {
+    try {
+      await axios.delete(`https://music-app-api-seven.vercel.app/playlists/${selectedPlaylist}/songs/${songId}`);
+      await fetchPlaylistSongs(selectedPlaylist); // Refresh playlist songs after removal
+      window.alert('Song removed from playlist successfully!');
+    } catch (error) {
+      console.error('Error removing song from playlist:', error);
+      window.alert('Failed to remove song from playlist.');
+    }
   };
 
   const handleAddSong = async () => {
@@ -155,8 +175,11 @@ const App = () => {
           <h2>My Playlists</h2>
           <ListGroup>
             {playlists.map((playlist) => (
-              <ListGroup.Item key={playlist._id} onClick={() => handlePlaylistClick(playlist._id)}>
+              <ListGroup.Item key={playlist._id} onClick={() => handleSelectPlaylist(playlist._id)}>
                 {playlist.name}
+                <Button variant="danger" className="ml-2" onClick={() => deletePlaylist(playlist._id)}>
+                  Delete
+                </Button>
               </ListGroup.Item>
             ))}
           </ListGroup>
@@ -167,8 +190,11 @@ const App = () => {
                 {playlistSongs.length > 0 ? (
                   <ListGroup>
                     {playlistSongs.map((song) => (
-                      <ListGroup.Item key={song.id} onClick={() => playSong(song)}>
+                      <ListGroup.Item key={song._id}>
                         {song.name} - {song.artists.join(', ')}
+                        <Button variant="danger" className="ml-2" onClick={() => removeSongFromPlaylist(song._id)}>
+                          Remove
+                        </Button>
                       </ListGroup.Item>
                     ))}
                   </ListGroup>
@@ -255,13 +281,6 @@ const App = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      {(isPlaying && currentSong) && (
-        <div className="mt-3">
-          <Button variant="danger" onClick={pauseSong}>
-            Pause
-          </Button>
-        </div>
-      )}
     </Container>
   );
 };

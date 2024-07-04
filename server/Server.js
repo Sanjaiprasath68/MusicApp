@@ -5,9 +5,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
-
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
@@ -23,7 +22,7 @@ mongoose.connect(process.env.MONGODB_URL, {
   console.error('Error connecting to MongoDB:', error);
 });
 
-// Import models
+// MongoDB models
 const Playlist = require('./models/Playlist');
 const Song = require('./models/Song');
 const Signup = require('./models/Signup'); // Import Signup model
@@ -110,6 +109,29 @@ app.post('/playlists/:id/addSong', async (req, res) => {
   } catch (error) {
     console.error('Error adding song to playlist:', error);
     res.status(500).json({ error: 'Error adding song to playlist' });
+  }
+});
+
+// Route for removing a song from a playlist
+app.delete('/playlists/:playlistId/songs/:songId', async (req, res) => {
+  const { playlistId, songId } = req.params;
+  try {
+    const playlist = await Playlist.findById(playlistId);
+    if (!playlist) {
+      return res.status(404).json({ error: 'Playlist not found' });
+    }
+
+    // Remove the song from the playlist
+    playlist.songs.pull(songId);
+    await playlist.save();
+
+    // Optionally, you can also delete the song from the Songs collection
+    await Song.findByIdAndDelete(songId);
+
+    res.json({ message: 'Song removed from playlist successfully' });
+  } catch (error) {
+    console.error('Error removing song from playlist:', error);
+    res.status(500).json({ error: 'Error removing song from playlist' });
   }
 });
 

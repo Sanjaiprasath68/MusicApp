@@ -136,7 +136,7 @@ const App = () => {
 
   return (
     <Container>
-      <h1 className="my-4">Spotify Playlist</h1>
+      <h1 className="my-4">Music Streaming</h1>
       {!showMyPlaylists && (
         <>
           <Button variant="primary" className="mb-3" onClick={handleShowCreateModal}>

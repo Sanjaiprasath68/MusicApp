@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const axios = require('axios');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+require('dotenv').config();
+
 
 const app = express();
 const port = 5000;
@@ -12,7 +14,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // MongoDB setup
-mongoose.connect('mongodb+srv://Sanjai:Sanjai_9843@cluster0.2ix6qqs.mongodb.net/spotify_playlist', {
+mongoose.connect(process.env.MONGODB_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(() => {

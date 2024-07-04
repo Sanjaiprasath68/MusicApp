@@ -19,7 +19,7 @@ const SignupPage = () => {
 
     try {
       // Send signup data to backend
-      const response = await axios.post('http://localhost:5000/signup', { email, password });
+      const response = await axios.post('https://music-app-api-seven.vercel.app/signup', { email, password });
       console.log('Signup response:', response.data);
 
       // Reset form fields

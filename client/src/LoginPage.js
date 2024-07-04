@@ -12,7 +12,7 @@ const LoginPage = ({ signin }) => {
     e.preventDefault();
     try {
       // Send login data to backend for validation
-      const response = await axios.post('http://localhost:5000/login', { email, password });
+      const response = await axios.post('https://music-app-api-seven.vercel.app/login', { email, password });
       console.log('Login response:', response.data);
 
       // Reset form fields

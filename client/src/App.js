@@ -21,7 +21,7 @@ const App = () => {
 
   const fetchPlaylist = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/fetchPlaylist');
+      const response = await axios.get('https://music-app-api-seven.vercel.app/fetchPlaylist');
       setSongs(response.data.tracks.items);
     } catch (error) {
       console.error('Error fetching playlist:', error);
@@ -30,7 +30,7 @@ const App = () => {
 
   const fetchPlaylists = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/playlists');
+      const response = await axios.get('https://music-app-api-seven.vercel.app/playlists');
       setPlaylists(response.data);
       setShowMyPlaylists(true);
     } catch (error) {
@@ -40,7 +40,7 @@ const App = () => {
 
   const fetchPlaylistSongs = async (playlistId) => {
     try {
-      const response = await axios.get(`http://localhost:5000/playlists/${playlistId}`);
+      const response = await axios.get(`https://music-app-api-seven.vercel.app/playlists/${playlistId}`);
       setPlaylistSongs(response.data.songs);
     } catch (error) {
       console.error('Error fetching playlist songs:', error);
@@ -88,7 +88,7 @@ const App = () => {
 
   const createPlaylist = async () => {
     try {
-      await axios.post('http://localhost:5000/playlists', { name: playlistName });
+      await axios.post('https://music-app-api-seven.vercel.app/playlists', { name: playlistName });
       await fetchPlaylists(); // Fetch updated playlists
       handleCloseCreateModal();
       window.alert('Playlist created successfully!');
@@ -117,7 +117,7 @@ const App = () => {
   const handleAddSong = async () => {
     try {
       const { id: songId, name: songName, album: { name: songAlbum }, preview_url, artists } = currentSong.track;
-      await axios.post(`http://localhost:5000/playlists/${selectedPlaylist}/addSong`, {
+      await axios.post(`https://music-app-api-seven.vercel.app/playlists/${selectedPlaylist}/addSong`, {
         songId,
         songName,
         songAlbum,

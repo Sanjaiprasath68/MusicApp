@@ -217,7 +217,7 @@ const App = () => {
                 <audio controls src={currentSong.preview_url} autoPlay />
               </div>
               <Button variant="danger" onClick={pauseSong}>
-                Pause
+                Remove
               </Button>
             </div>
           )}

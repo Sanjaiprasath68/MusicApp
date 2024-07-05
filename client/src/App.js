@@ -21,7 +21,7 @@ const App = () => {
 
   const fetchPlaylist = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/fetchPlaylist');
+      const response = await axios.get('https://music-app-api-seven.vercel.app/fetchPlaylist');
       setSongs(response.data.tracks.items);
     } catch (error) {
       console.error('Error fetching playlist:', error);
@@ -30,7 +30,7 @@ const App = () => {
 
   const fetchPlaylists = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/playlists');
+      const response = await axios.get('https://music-app-api-seven.vercel.app/playlists');
       setPlaylists(response.data);
       setShowMyPlaylists(true);
     } catch (error) {
@@ -40,7 +40,7 @@ const App = () => {
 
   const fetchPlaylistSongs = async (playlistId) => {
     try {
-      const response = await axios.get(`http://localhost:5000/playlists/${playlistId}`);
+      const response = await axios.get(`https://music-app-api-seven.vercel.app/playlists/${playlistId}`);
       setPlaylistSongs(response.data.songs);
     } catch (error) {
       console.error('Error fetching playlist songs:', error);
@@ -88,17 +88,20 @@ const App = () => {
 
   const createPlaylist = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/playlists', { name: playlistName });
-      setPlaylists([...playlists, response.data]);
+      await axios.post('https://music-app-api-seven.vercel.app/playlists', { name: playlistName });
+      await fetchPlaylists(); // Fetch updated playlists
       handleCloseCreateModal();
       window.alert('Playlist created successfully!');
     } catch (error) {
       console.error('Error creating playlist:', error);
+      window.alert('Failed to create playlist.');
     }
   };
 
-  const handleSelectPlaylist = (event) => {
-    setSelectedPlaylist(event.target.value);
+  const handleSelectPlaylist = async (event) => {
+    const playlistId = event.target.value;
+    setSelectedPlaylist(playlistId);
+    await fetchPlaylistSongs(playlistId);
   };
 
   const handleShowMyPlaylists = () => {
@@ -109,14 +112,32 @@ const App = () => {
     setShowMyPlaylists(false);
   };
 
-  const handlePlaylistClick = (playlistId) => {
-    fetchPlaylistSongs(playlistId); // Fetch songs for the selected playlist
+  const deletePlaylist = async (playlistId) => {
+    try {
+      await axios.delete(`https://music-app-api-seven.vercel.app/playlists/${playlistId}`);
+      await fetchPlaylists(); // Refresh playlists after deletion
+      window.alert('Playlist deleted successfully!');
+    } catch (error) {
+      console.error('Error deleting playlist:', error);
+      window.alert('Failed to delete playlist.');
+    }
+  };
+
+  const removeSongFromPlaylist = async (songId) => {
+    try {
+      await axios.delete(`https://music-app-api-seven.vercel.app/playlists/${selectedPlaylist}/songs/${songId}`);
+      await fetchPlaylistSongs(selectedPlaylist); // Refresh playlist songs after removal
+      window.alert('Song removed from playlist successfully!');
+    } catch (error) {
+      console.error('Error removing song from playlist:', error);
+      window.alert('Failed to remove song from playlist.');
+    }
   };
 
   const handleAddSong = async () => {
     try {
       const { id: songId, name: songName, album: { name: songAlbum }, preview_url, artists } = currentSong.track;
-      const response = await axios.post(`http://localhost:5000/playlists/${selectedPlaylist}/addSong`, {
+      await axios.post(`https://music-app-api-seven.vercel.app/playlists/${selectedPlaylist}/addSong`, {
         songId,
         songName,
         songAlbum,
@@ -135,7 +156,7 @@ const App = () => {
 
   return (
     <Container>
-      <h1 className="my-4">Spotify Playlist</h1>
+      <h1 className="my-4">Music Streaming</h1>
       {!showMyPlaylists && (
         <>
           <Button variant="primary" className="mb-3" onClick={handleShowCreateModal}>
@@ -154,8 +175,11 @@ const App = () => {
           <h2>My Playlists</h2>
           <ListGroup>
             {playlists.map((playlist) => (
-              <ListGroup.Item key={playlist._id} onClick={() => handlePlaylistClick(playlist._id)}>
+              <ListGroup.Item key={playlist._id} onClick={() => handleSelectPlaylist(playlist._id)}>
                 {playlist.name}
+                <Button variant="danger" className="ml-2" onClick={() => deletePlaylist(playlist._id)}>
+                  Delete
+                </Button>
               </ListGroup.Item>
             ))}
           </ListGroup>
@@ -166,8 +190,11 @@ const App = () => {
                 {playlistSongs.length > 0 ? (
                   <ListGroup>
                     {playlistSongs.map((song) => (
-                      <ListGroup.Item key={song.id} onClick={() => playSong(song)}>
+                      <ListGroup.Item key={song._id}>
                         {song.name} - {song.artists.join(', ')}
+                        <Button variant="danger" className="ml-2" onClick={() => removeSongFromPlaylist(song._id)}>
+                          Remove
+                        </Button>
                       </ListGroup.Item>
                     ))}
                   </ListGroup>
@@ -180,15 +207,14 @@ const App = () => {
         </>
       )}
       {!showMyPlaylists && (
-      
         <ListGroup>
-        {(isPlaying && currentSong) && (
-        <div className="mt-3">
-          <Button variant="danger" onClick={pauseSong}>
-            Pause
-          </Button>
-        </div>
-      )}
+          {(isPlaying && currentSong) && (
+            <div className="mt-3">
+              <Button variant="danger" onClick={pauseSong}>
+                Pause
+              </Button>
+            </div>
+          )}
           {songs.map((song) => (
             <ListGroup.Item key={song.track.id}>
               <div>
@@ -255,14 +281,6 @@ const App = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      
-      {(isPlaying && currentSong) && (
-        <div className="mt-3">
-          <Button variant="danger" onClick={pauseSong}>
-            Pause
-          </Button>
-        </div>
-      )}
     </Container>
   );
 };

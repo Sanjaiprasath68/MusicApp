@@ -1,10 +1,19 @@
 const mongoose = require('mongoose');
+const Song = require('./Song');
 
-const playlistSchema = new mongoose.Schema({
+const PlaylistSchema = new mongoose.Schema({
   name: String,
   songs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Song' }],
 });
 
-const Playlist = mongoose.model('Playlist', playlistSchema);
+// Pre-remove hook to delete associated songs
+PlaylistSchema.pre('remove', async function(next) {
+  try {
+    await Song.deleteMany({ _id: { $in: this.songs } });
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
-module.exports = Playlist;
+module.exports = mongoose.model('Playlist', PlaylistSchema);

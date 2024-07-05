@@ -133,11 +133,12 @@ app.delete('/playlists/:playlistId/songs/:songId', async (req, res) => {
 app.delete('/playlists/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const playlist = await Playlist.findByIdAndDelete(id);
+    const playlist = await Playlist.findById(id);
     if (!playlist) {
       return res.status(404).json({ error: 'Playlist not found' });
     }
-    res.json({ message: 'Playlist deleted successfully' });
+    await playlist.remove();
+    res.json({ message: 'Playlist and its songs deleted successfully' });
   } catch (error) {
     console.error('Error deleting playlist:', error);
     res.status(500).json({ error: 'Error deleting playlist' });

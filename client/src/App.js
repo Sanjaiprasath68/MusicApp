@@ -212,7 +212,10 @@ const App = () => {
         <ListGroup>
           {(isPlaying && currentSong) && (
             <div className="mt-3">
-              <audio controls src={currentSong.preview_url} autoPlay />
+              <div className="d-flex align-items-center">
+                <img src={currentSong.album.images[0].url} alt="Song Album" style={{ width: '50px', marginRight: '15px' }} />
+                <audio controls src={currentSong.preview_url} autoPlay />
+              </div>
               <Button variant="danger" onClick={pauseSong}>
                 Pause
               </Button>

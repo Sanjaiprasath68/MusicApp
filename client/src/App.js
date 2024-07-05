@@ -177,15 +177,19 @@ const App = () => {
           </Button>
           <h2>My Playlists</h2>
           <ListGroup>
-            {playlists.map((playlist) => (
-              <ListGroup.Item key={playlist._id} onClick={() => handleSelectPlaylist(playlist._id)}>
-                {playlist.name}
-                <Button variant="danger" className="ml-2" onClick={() => deletePlaylist(playlist._id)}>
-                  Delete
-                </Button>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
+        {playlists.map((playlist) => (
+          <ListGroup.Item key={playlist._id} onClick={() => handleSelectPlaylist(playlist._id)}>
+            {playlist.name}
+            <Button variant="danger" className="ml-2" onClick={(e) => {
+              e.stopPropagation();
+              deletePlaylist(playlist._id);
+            }}>
+              Delete
+            </Button>
+          </ListGroup.Item>
+        ))}
+      </ListGroup>
+
           {selectedPlaylist && (
             <Card className="mt-3">
               <Card.Body>

@@ -117,6 +117,7 @@ const App = () => {
 
   const deletePlaylist = async (playlistId) => {
     try {
+      console.log(`Deleting playlist with ID: ${playlistId}`);
       await axios.delete(`https://music-app-api-seven.vercel.app/playlists/${playlistId}`);
       await fetchPlaylists(); // Refresh playlists after deletion
       window.alert('Playlist deleted successfully!');
@@ -125,7 +126,7 @@ const App = () => {
       window.alert('Failed to delete playlist.');
     }
   };
-
+  
   const removeSongFromPlaylist = async (songId) => {
     try {
       await axios.delete(`https://music-app-api-seven.vercel.app/playlists/${selectedPlaylist}/songs/${songId}`);

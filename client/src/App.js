@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Container, ListGroup, Button, Modal, Card, Form, Row, Col } from 'react-bootstrap';
+import { Container, ListGroup, Button, Modal, Card, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
@@ -21,7 +21,7 @@ const App = () => {
 
   const fetchPlaylist = async () => {
     try {
-      const response = await axios.get('https://music-app-api-seven.vercel.app/fetchPlaylist');
+      const response = await axios.get('http://localhost:5000/fetchPlaylist');
       setSongs(response.data.tracks.items);
     } catch (error) {
       console.error('Error fetching playlist:', error);
@@ -30,7 +30,7 @@ const App = () => {
 
   const fetchPlaylists = async () => {
     try {
-      const response = await axios.get('https://music-app-api-seven.vercel.app/playlists');
+      const response = await axios.get('http://localhost:5000/playlists');
       setPlaylists(response.data);
       setShowMyPlaylists(true);
     } catch (error) {
@@ -40,7 +40,7 @@ const App = () => {
 
   const fetchPlaylistSongs = async (playlistId) => {
     try {
-      const response = await axios.get(`https://music-app-api-seven.vercel.app/playlists/${playlistId}`);
+      const response = await axios.get(`http://localhost:5000/playlists/${playlistId}`);
       setPlaylistSongs(response.data.songs);
     } catch (error) {
       console.error('Error fetching playlist songs:', error);
@@ -88,20 +88,17 @@ const App = () => {
 
   const createPlaylist = async () => {
     try {
-      await axios.post('https://music-app-api-seven.vercel.app/playlists', { name: playlistName });
-      await fetchPlaylists(); // Fetch updated playlists
+      const response = await axios.post('http://localhost:5000/playlists', { name: playlistName });
+      setPlaylists([...playlists, response.data]);
       handleCloseCreateModal();
       window.alert('Playlist created successfully!');
     } catch (error) {
       console.error('Error creating playlist:', error);
-      window.alert('Failed to create playlist.');
     }
   };
 
-  const handleSelectPlaylist = async (event) => {
-    const playlistId = event.target.value;
-    setSelectedPlaylist(playlistId);
-    await fetchPlaylistSongs(playlistId);
+  const handleSelectPlaylist = (event) => {
+    setSelectedPlaylist(event.target.value);
   };
 
   const handleShowMyPlaylists = () => {
@@ -112,32 +109,14 @@ const App = () => {
     setShowMyPlaylists(false);
   };
 
-  const deletePlaylist = async (playlistId) => {
-    try {
-      await axios.delete(`https://music-app-api-seven.vercel.app/playlists/${playlistId}`);
-      await fetchPlaylists(); // Refresh playlists after deletion
-      window.alert('Playlist deleted successfully!');
-    } catch (error) {
-      console.error('Error deleting playlist:', error);
-      window.alert('Failed to delete playlist.');
-    }
-  };
-
-  const removeSongFromPlaylist = async (songId) => {
-    try {
-      await axios.delete(`https://music-app-api-seven.vercel.app/playlists/${selectedPlaylist}/songs/${songId}`);
-      await fetchPlaylistSongs(selectedPlaylist); // Refresh playlist songs after removal
-      window.alert('Song removed from playlist successfully!');
-    } catch (error) {
-      console.error('Error removing song from playlist:', error);
-      window.alert('Failed to remove song from playlist.');
-    }
+  const handlePlaylistClick = (playlistId) => {
+    fetchPlaylistSongs(playlistId); // Fetch songs for the selected playlist
   };
 
   const handleAddSong = async () => {
     try {
       const { id: songId, name: songName, album: { name: songAlbum }, preview_url, artists } = currentSong.track;
-      await axios.post(`https://music-app-api-seven.vercel.app/playlists/${selectedPlaylist}/addSong`, {
+      const response = await axios.post(`http://localhost:5000/playlists/${selectedPlaylist}/addSong`, {
         songId,
         songName,
         songAlbum,
@@ -155,41 +134,28 @@ const App = () => {
   };
 
   return (
-    <Container className="py-4">
-      <h1 className="text-center mb-4">Music Streaming App</h1>
-      
-      {/* Show create playlist and show my playlists buttons */}
+    <Container>
+      <h1 className="my-4">Spotify Playlist</h1>
       {!showMyPlaylists && (
-        <Row className="justify-content-center mb-4">
-          <Col className="text-center">
-            <Button variant="success" onClick={handleShowCreateModal}>
-              Create Playlist
-            </Button>
-          </Col>
-          <Col className="text-center">
-            <Button variant="primary" onClick={handleShowMyPlaylists}>
-              Show My Playlists
-            </Button>
-          </Col>
-        </Row>
+        <>
+          <Button variant="primary" className="mb-3" onClick={handleShowCreateModal}>
+            Create Playlist
+          </Button>
+          <Button variant="primary" className="mb-3" onClick={handleShowMyPlaylists}>
+            Show My Playlists
+          </Button>
+        </>
       )}
-
-      {/* Show playlists */}
       {showMyPlaylists && (
         <>
           <Button variant="secondary" className="mb-3" onClick={handleHideMyPlaylists}>
             Back to Playlist
           </Button>
-          <h2 className="mb-3">My Playlists</h2>
+          <h2>My Playlists</h2>
           <ListGroup>
             {playlists.map((playlist) => (
-              <ListGroup.Item key={playlist._id} onClick={() => handleSelectPlaylist(playlist._id)} action>
-                <div className="d-flex justify-content-between align-items-center">
-                  <span>{playlist.name}</span>
-                  <Button variant="danger" onClick={() => deletePlaylist(playlist._id)}>
-                    Delete
-                  </Button>
-                </div>
+              <ListGroup.Item key={playlist._id} onClick={() => handlePlaylistClick(playlist._id)}>
+                {playlist.name}
               </ListGroup.Item>
             ))}
           </ListGroup>
@@ -200,13 +166,8 @@ const App = () => {
                 {playlistSongs.length > 0 ? (
                   <ListGroup>
                     {playlistSongs.map((song) => (
-                      <ListGroup.Item key={song._id} className="d-flex justify-content-between align-items-center">
-                        <div>
-                          {song.name} - {song.artists.join(', ')}
-                        </div>
-                        <Button variant="danger" onClick={() => removeSongFromPlaylist(song._id)}>
-                          Remove
-                        </Button>
+                      <ListGroup.Item key={song.id} onClick={() => playSong(song)}>
+                        {song.name} - {song.artists.join(', ')}
                       </ListGroup.Item>
                     ))}
                   </ListGroup>
@@ -218,37 +179,32 @@ const App = () => {
           )}
         </>
       )}
-
-      {/* Show songs */}
       {!showMyPlaylists && (
-        <ListGroup className="mt-3">
-          {(isPlaying && currentSong) && (
-            <div className="mb-3 text-center">
-              <Button variant="danger" onClick={pauseSong}>
-                Pause
-              </Button>
-            </div>
-          )}
+      
+        <ListGroup>
+        {(isPlaying && currentSong) && (
+        <div className="mt-3">
+          <Button variant="danger" onClick={pauseSong}>
+            Pause
+          </Button>
+        </div>
+      )}
           {songs.map((song) => (
-            <ListGroup.Item key={song.track.id} className="d-flex justify-content-between align-items-center">
+            <ListGroup.Item key={song.track.id}>
               <div>
                 <strong>{song.track.name}</strong> by{' '}
                 {song.track.artists.map((artist) => artist.name).join(', ')}
               </div>
-              <div>
-                <Button variant="primary" className="mx-2" onClick={() => handleShowModal(song)}>
-                  Add to Playlist
-                </Button>
-                <Button variant="success" onClick={() => playSong(song.track)}>
-                  Play
-                </Button>
-              </div>
+              <Button variant="primary" onClick={() => handleShowModal(song)}>
+                Add to Playlist
+              </Button>
+              <Button variant="success" onClick={() => playSong(song.track)}>
+                Play
+              </Button>
             </ListGroup.Item>
           ))}
         </ListGroup>
       )}
-
-      {/* Modal to add song to playlist */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Add Song to Playlist</Modal.Title>
@@ -275,8 +231,6 @@ const App = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
-      {/* Modal to create new playlist */}
       <Modal show={showCreateModal} onHide={handleCloseCreateModal}>
         <Modal.Header closeButton>
           <Modal.Title>Create Playlist</Modal.Title>
@@ -296,11 +250,19 @@ const App = () => {
           <Button variant="secondary" onClick={handleCloseCreateModal}>
             Close
           </Button>
-          <Button variant="success" onClick={createPlaylist}>
+          <Button variant="primary" onClick={createPlaylist}>
             Create Playlist
           </Button>
         </Modal.Footer>
       </Modal>
+      
+      {(isPlaying && currentSong) && (
+        <div className="mt-3">
+          <Button variant="danger" onClick={pauseSong}>
+            Pause
+          </Button>
+        </div>
+      )}
     </Container>
   );
 };

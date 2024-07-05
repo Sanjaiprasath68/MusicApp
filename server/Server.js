@@ -32,7 +32,7 @@ const Signup = require('./models/Signup'); // Import Signup model
 // Route for fetching playlists from an external API
 app.get('/fetchPlaylist', async (req, res) => {
   try {
-    const response = await axios.get("https://v1.nocodeapi.com/sachinsharma10/spotify/hyFdawBnWQEXIMEK/playlists?id=37i9dQZF1DX1i3hvzHpcQV");
+    const response = await axios.get("https://v1.nocodeapi.com/sachinsharma10/spotify/hyFdawBnWQEXIMEk/playlists?id=37i9dQZF1DX1i3hvzHpcQV");
     res.json(response.data);
   } catch (error) {
     console.error('Error fetching data:', error.response ? error.response.data : error.message);

@@ -113,6 +113,22 @@ app.post('/playlists/:id/addSong', async (req, res) => {
 });
 
 // Route for removing a song from a playlist
+app.delete('/playlists/:playlistId/songs/:songId', async (req, res) => {
+  const { playlistId, songId } = req.params;
+  try {
+    const playlist = await Playlist.findById(playlistId);
+    if (!playlist) {
+      return res.status(404).json({ error: 'Playlist not found' });
+    }
+    playlist.songs.pull(songId);
+    await playlist.save();
+    res.json({ message: 'Song removed from playlist' });
+  } catch (error) {
+    console.error('Error removing song from playlist:', error);
+    res.status(500).json({ error: 'Error removing song from playlist' });
+  }
+});
+
 // Route for deleting a playlist
 app.delete('/playlists/:id', async (req, res) => {
   const { id } = req.params;
@@ -127,7 +143,6 @@ app.delete('/playlists/:id', async (req, res) => {
     res.status(500).json({ error: 'Error deleting playlist' });
   }
 });
-
 
 // Route for handling signup
 app.post('/signup', async (req, res) => {

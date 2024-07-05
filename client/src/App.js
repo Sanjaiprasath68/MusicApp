@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Container, ListGroup, Button, Modal, Card, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMinusCircle } from '@fortawesome/free-solid-svg-icons';
 
 const App = () => {
   const [songs, setSongs] = useState([]);
@@ -177,10 +175,10 @@ const App = () => {
           <h2>My Playlists</h2>
           <ListGroup>
             {playlists.map((playlist) => (
-              <ListGroup.Item key={playlist._id} className="d-flex justify-content-between align-items-center">
-                <span onClick={() => handleSelectPlaylist(playlist._id)}>{playlist.name}</span>
-                <Button variant="danger" onClick={() => deletePlaylist(playlist._id)}>
-                  <FontAwesomeIcon icon={faMinusCircle} />
+              <ListGroup.Item key={playlist._id} onClick={() => handleSelectPlaylist(playlist._id)}>
+                {playlist.name}
+                <Button variant="danger" className="ml-2" onClick={() => deletePlaylist(playlist._id)}>
+                  Delete
                 </Button>
               </ListGroup.Item>
             ))}
@@ -192,10 +190,10 @@ const App = () => {
                 {playlistSongs.length > 0 ? (
                   <ListGroup>
                     {playlistSongs.map((song) => (
-                      <ListGroup.Item key={song._id} className="d-flex justify-content-between align-items-center">
-                        <span>{song.name} - {song.artists.join(', ')}</span>
-                        <Button variant="danger" onClick={() => removeSongFromPlaylist(song._id)}>
-                          <FontAwesomeIcon icon={faMinusCircle} />
+                      <ListGroup.Item key={song._id}>
+                        {song.name} - {song.artists.join(', ')}
+                        <Button variant="danger" className="ml-2" onClick={() => removeSongFromPlaylist(song._id)}>
+                          Remove
                         </Button>
                       </ListGroup.Item>
                     ))}
@@ -218,19 +216,17 @@ const App = () => {
             </div>
           )}
           {songs.map((song) => (
-            <ListGroup.Item key={song.track.id} className="d-flex justify-content-between align-items-center">
+            <ListGroup.Item key={song.track.id}>
               <div>
                 <strong>{song.track.name}</strong> by{' '}
                 {song.track.artists.map((artist) => artist.name).join(', ')}
               </div>
-              <div>
-                <Button variant="primary" onClick={() => handleShowModal(song)}>
-                  Add to Playlist
-                </Button>
-                <Button variant="success" onClick={() => playSong(song.track)}>
-                  Play
-                </Button>
-              </div>
+              <Button variant="primary" onClick={() => handleShowModal(song)}>
+                Add to Playlist
+              </Button>
+              <Button variant="success" onClick={() => playSong(song.track)}>
+                Play
+              </Button>
             </ListGroup.Item>
           ))}
         </ListGroup>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Container, ListGroup, Button, Modal, Card, Form } from 'react-bootstrap';
+import { Container, ListGroup, Button, Modal, Card, Form, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
@@ -160,14 +160,18 @@ const App = () => {
       
       {/* Show create playlist and show my playlists buttons */}
       {!showMyPlaylists && (
-        <div className="text-center mb-4">
-          <Button variant="success" className="mx-2" onClick={handleShowCreateModal}>
-            Create Playlist
-          </Button>
-          <Button variant="primary" className="mx-2" onClick={handleShowMyPlaylists}>
-            Show My Playlists
-          </Button>
-        </div>
+        <Row className="justify-content-center mb-4">
+          <Col className="text-center">
+            <Button variant="success" onClick={handleShowCreateModal}>
+              Create Playlist
+            </Button>
+          </Col>
+          <Col className="text-center">
+            <Button variant="primary" onClick={handleShowMyPlaylists}>
+              Show My Playlists
+            </Button>
+          </Col>
+        </Row>
       )}
 
       {/* Show playlists */}
@@ -180,10 +184,12 @@ const App = () => {
           <ListGroup>
             {playlists.map((playlist) => (
               <ListGroup.Item key={playlist._id} onClick={() => handleSelectPlaylist(playlist._id)} action>
-                {playlist.name}
-                <Button variant="danger" className="ml-2" onClick={() => deletePlaylist(playlist._id)}>
-                  Delete
-                </Button>
+                <div className="d-flex justify-content-between align-items-center">
+                  <span>{playlist.name}</span>
+                  <Button variant="danger" onClick={() => deletePlaylist(playlist._id)}>
+                    Delete
+                  </Button>
+                </div>
               </ListGroup.Item>
             ))}
           </ListGroup>
@@ -194,9 +200,11 @@ const App = () => {
                 {playlistSongs.length > 0 ? (
                   <ListGroup>
                     {playlistSongs.map((song) => (
-                      <ListGroup.Item key={song._id}>
-                        {song.name} - {song.artists.join(', ')}
-                        <Button variant="danger" className="ml-2" onClick={() => removeSongFromPlaylist(song._id)}>
+                      <ListGroup.Item key={song._id} className="d-flex justify-content-between align-items-center">
+                        <div>
+                          {song.name} - {song.artists.join(', ')}
+                        </div>
+                        <Button variant="danger" onClick={() => removeSongFromPlaylist(song._id)}>
                           Remove
                         </Button>
                       </ListGroup.Item>

@@ -14,6 +14,7 @@ const App = () => {
   const [selectedPlaylist, setSelectedPlaylist] = useState('');
   const [showMyPlaylists, setShowMyPlaylists] = useState(false);
   const [playlistSongs, setPlaylistSongs] = useState([]);
+  const [audioControl, setAudioControl] = useState(null);
 
   useEffect(() => {
     fetchPlaylist();
@@ -48,18 +49,19 @@ const App = () => {
   };
 
   const playSong = (song) => {
-    if (currentSong && currentSong.audio) {
-      currentSong.audio.pause();
+    if (audioControl) {
+      audioControl.pause();
     }
     const audio = new Audio(song.preview_url);
     audio.play();
-    setCurrentSong({ ...song, audio });
+    setAudioControl(audio);
+    setCurrentSong(song);
     setIsPlaying(true);
   };
 
   const pauseSong = () => {
-    if (currentSong && currentSong.audio) {
-      currentSong.audio.pause();
+    if (audioControl) {
+      audioControl.pause();
     }
     setIsPlaying(false);
   };
@@ -70,8 +72,8 @@ const App = () => {
   };
 
   const handleCloseModal = () => {
-    if (currentSong && currentSong.audio) {
-      currentSong.audio.pause();
+    if (audioControl) {
+      audioControl.pause();
     }
     setShowModal(false);
     setIsPlaying(false);
@@ -210,6 +212,7 @@ const App = () => {
         <ListGroup>
           {(isPlaying && currentSong) && (
             <div className="mt-3">
+              <audio controls src={currentSong.preview_url} autoPlay />
               <Button variant="danger" onClick={pauseSong}>
                 Pause
               </Button>
@@ -259,7 +262,7 @@ const App = () => {
       </Modal>
       <Modal show={showCreateModal} onHide={handleCloseCreateModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Create Playlist</Modal.Title>
+          <Modal.Title>Create New Playlist</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form.Group controlId="formPlaylistName">

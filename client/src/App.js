@@ -18,6 +18,7 @@ const App = () => {
 
   useEffect(() => {
     fetchPlaylist();
+    fetchPlaylists();
   }, []);
 
   const fetchPlaylist = async () => {
@@ -33,7 +34,6 @@ const App = () => {
     try {
       const response = await axios.get('https://music-app-api-seven.vercel.app/playlists');
       setPlaylists(response.data);
-      setShowMyPlaylists(true);
     } catch (error) {
       console.error('Error fetching playlists:', error);
     }
@@ -108,6 +108,7 @@ const App = () => {
 
   const handleShowMyPlaylists = () => {
     fetchPlaylists();
+    setShowMyPlaylists(true);
   };
 
   const handleHideMyPlaylists = () => {
@@ -144,7 +145,7 @@ const App = () => {
         songName,
         songAlbum,
         preview_url,
-        artists,
+        artists: artists.map(artist => artist.name), // Save artist names
       });
       window.alert('Song added to playlist successfully!');
       handleCloseModal();
@@ -217,7 +218,7 @@ const App = () => {
                 <span>{currentSong.name} by {currentSong.artists.map((artist) => artist.name).join(', ')}</span>
               </div>
               <Button variant="danger" onClick={pauseSong}>
-                Remove
+                Pause
               </Button>
             </div>
           )}
@@ -263,9 +264,10 @@ const App = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
       <Modal show={showCreateModal} onHide={handleCloseCreateModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Create New Playlist</Modal.Title>
+          <Modal.Title>Create Playlist</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form.Group controlId="formPlaylistName">

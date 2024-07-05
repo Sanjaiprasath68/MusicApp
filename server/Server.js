@@ -183,6 +183,51 @@ app.post('/login', async (req, res) => {
   }
 });
 
+
+
+
+
+
+// DELETE route to delete a playlist
+app.delete('/playlists/:playlistId', async (req, res) => {
+  const { playlistId } = req.params;
+
+  try {
+    await Playlist.findByIdAndDelete(playlistId);
+    res.status(200).send('Playlist deleted successfully');
+  } catch (error) {
+    console.error('Error deleting playlist:', error);
+    res.status(500).send('Failed to delete playlist');
+  }
+});
+
+// DELETE route to remove a song from a playlist
+app.delete('/playlists/:playlistId/songs/:songId', async (req, res) => {
+  const { playlistId, songId } = req.params;
+
+  try {
+    const playlist = await Playlist.findById(playlistId);
+    if (!playlist) {
+      return res.status(404).send('Playlist not found');
+    }
+
+    playlist.songs = playlist.songs.filter(song => song._id.toString() !== songId);
+    await playlist.save();
+
+    res.status(200).send('Song removed from playlist successfully');
+  } catch (error) {
+    console.error('Error removing song from playlist:', error);
+    res.status(500).send('Failed to remove song from playlist');
+  }
+});
+
+
+
+
+
+
+
+
 // Start server
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

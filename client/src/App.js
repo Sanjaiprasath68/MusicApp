@@ -155,29 +155,33 @@ const App = () => {
   };
 
   return (
-    <Container>
-      <h1 className="my-4">Music Streaming</h1>
+    <Container className="py-4">
+      <h1 className="text-center mb-4">Music Streaming App</h1>
+      
+      {/* Show create playlist and show my playlists buttons */}
       {!showMyPlaylists && (
-        <>
-          <Button variant="primary" className="mb-3" onClick={handleShowCreateModal}>
+        <div className="text-center mb-4">
+          <Button variant="success" className="mx-2" onClick={handleShowCreateModal}>
             Create Playlist
           </Button>
-          <Button variant="primary" className="mb-3" onClick={handleShowMyPlaylists}>
+          <Button variant="primary" className="mx-2" onClick={handleShowMyPlaylists}>
             Show My Playlists
           </Button>
-        </>
+        </div>
       )}
+
+      {/* Show playlists */}
       {showMyPlaylists && (
         <>
           <Button variant="secondary" className="mb-3" onClick={handleHideMyPlaylists}>
             Back to Playlist
           </Button>
-          <h2>My Playlists</h2>
+          <h2 className="mb-3">My Playlists</h2>
           <ListGroup>
             {playlists.map((playlist) => (
-              <ListGroup.Item key={playlist._id} className="d-flex justify-content-between align-items-center">
-                <span onClick={() => handleSelectPlaylist(playlist._id)}>{playlist.name}</span>
-                <Button variant="danger" onClick={() => deletePlaylist(playlist._id)}>
+              <ListGroup.Item key={playlist._id} onClick={() => handleSelectPlaylist(playlist._id)} action>
+                {playlist.name}
+                <Button variant="danger" className="ml-2" onClick={() => deletePlaylist(playlist._id)}>
                   Delete
                 </Button>
               </ListGroup.Item>
@@ -190,9 +194,9 @@ const App = () => {
                 {playlistSongs.length > 0 ? (
                   <ListGroup>
                     {playlistSongs.map((song) => (
-                      <ListGroup.Item key={song._id} className="d-flex justify-content-between align-items-center">
-                        <span>{song.name} - {song.artists.join(', ')}</span>
-                        <Button variant="danger" onClick={() => removeSongFromPlaylist(song._id)}>
+                      <ListGroup.Item key={song._id}>
+                        {song.name} - {song.artists.join(', ')}
+                        <Button variant="danger" className="ml-2" onClick={() => removeSongFromPlaylist(song._id)}>
                           Remove
                         </Button>
                       </ListGroup.Item>
@@ -206,10 +210,12 @@ const App = () => {
           )}
         </>
       )}
+
+      {/* Show songs */}
       {!showMyPlaylists && (
-        <ListGroup>
+        <ListGroup className="mt-3">
           {(isPlaying && currentSong) && (
-            <div className="mt-3">
+            <div className="mb-3 text-center">
               <Button variant="danger" onClick={pauseSong}>
                 Pause
               </Button>
@@ -222,7 +228,7 @@ const App = () => {
                 {song.track.artists.map((artist) => artist.name).join(', ')}
               </div>
               <div>
-                <Button variant="primary" onClick={() => handleShowModal(song)}>
+                <Button variant="primary" className="mx-2" onClick={() => handleShowModal(song)}>
                   Add to Playlist
                 </Button>
                 <Button variant="success" onClick={() => playSong(song.track)}>
@@ -233,6 +239,8 @@ const App = () => {
           ))}
         </ListGroup>
       )}
+
+      {/* Modal to add song to playlist */}
       <Modal show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Add Song to Playlist</Modal.Title>
@@ -259,6 +267,8 @@ const App = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Modal to create new playlist */}
       <Modal show={showCreateModal} onHide={handleCloseCreateModal}>
         <Modal.Header closeButton>
           <Modal.Title>Create Playlist</Modal.Title>
@@ -278,7 +288,7 @@ const App = () => {
           <Button variant="secondary" onClick={handleCloseCreateModal}>
             Close
           </Button>
-          <Button variant="primary" onClick={createPlaylist}>
+          <Button variant="success" onClick={createPlaylist}>
             Create Playlist
           </Button>
         </Modal.Footer>

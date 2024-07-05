@@ -129,21 +129,21 @@ app.delete('/playlists/:playlistId/songs/:songId', async (req, res) => {
   }
 });
 
-// Route for deleting a playlist
-app.delete('/playlists/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const playlist = await Playlist.findById(id);
-    if (!playlist) {
-      return res.status(404).json({ error: 'Playlist not found' });
-    }
-    await playlist.remove();
-    res.json({ message: 'Playlist and its songs deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting playlist:', error);
-    res.status(500).json({ error: 'Error deleting playlist' });
-  }
-});
+// // Route for deleting a playlist
+// app.delete('/playlists/:id', async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//     const playlist = await Playlist.findById(id);
+//     if (!playlist) {
+//       return res.status(404).json({ error: 'Playlist not found' });
+//     }
+//     await playlist.remove();
+//     res.json({ message: 'Playlist and its songs deleted successfully' });
+//   } catch (error) {
+//     console.error('Error deleting playlist:', error);
+//     res.status(500).json({ error: 'Error deleting playlist' });
+//   }
+// });
 
 // Route for handling signup
 app.post('/signup', async (req, res) => {
@@ -191,15 +191,19 @@ app.post('/login', async (req, res) => {
 // DELETE route to delete a playlist
 app.delete('/playlists/:playlistId', async (req, res) => {
   const { playlistId } = req.params;
-
   try {
-    await Playlist.findByIdAndDelete(playlistId);
+    const deletedPlaylist = await Playlist.findByIdAndDelete(playlistId);
+    if (!deletedPlaylist) {
+      console.error(`Playlist with ID ${playlistId} not found.`);
+      return res.status(404).send('Playlist not found');
+    }
     res.status(200).send('Playlist deleted successfully');
   } catch (error) {
     console.error('Error deleting playlist:', error);
     res.status(500).send('Failed to delete playlist');
   }
 });
+
 
 // DELETE route to remove a song from a playlist
 app.delete('/playlists/:playlistId/songs/:songId', async (req, res) => {
